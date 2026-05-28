@@ -1,0 +1,16 @@
+# local env
+.env
+
+# editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+.claude/settings.local.json
+
+# never commit DB binaries or data volumes
+*.bak
+*.bacpac
+*.mdf
+*.ldf
+data/

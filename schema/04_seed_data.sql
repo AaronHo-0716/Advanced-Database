@@ -1,0 +1,17 @@
+-- ============================================================
+-- 04_seed_data.sql
+-- Test data — committed INSERT statements only.
+-- SHARED FILE: coordinate with the team before editing.
+-- Apply order: LAST. Runs after tables, constraints, and all
+-- per-member objects (so triggers fire on inserts as they would
+-- in production).
+-- Engine: MS SQL Server (T-SQL).
+-- ------------------------------------------------------------
+-- RULE: seed data lives here as committed INSERT statements.
+-- Never hand-enter test data through a GUI client — every clone
+-- of the repo must rebuild to the SAME state via reset.sh /
+-- reset.ps1. If you needed it to demo, it belongs in this file.
+-- ============================================================
+
+-- TODO: team to author INSERTs here (cruise_operator, ship, port,
+-- voyage, cabin_category, cabin, passenger, reservation, ...).

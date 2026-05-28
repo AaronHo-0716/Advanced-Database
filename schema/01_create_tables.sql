@@ -1,0 +1,21 @@
+-- ============================================================
+-- 01_create_tables.sql
+-- GLCL schema — table definitions (24 tables), PKs, FKs.
+-- SHARED FILE: coordinate with the team before editing.
+-- Apply order: 1st. All other scripts depend on this.
+-- Engine: MS SQL Server (T-SQL).
+-- ------------------------------------------------------------
+-- TABLES TO DEFINE (per agreed ERD):
+--   cruise_operator, ship, port, voyage, itinerary_stop,
+--   cabin_category, cabin, voyage_cabin_fare, passenger,
+--   age_category, reservation_status, reservation,
+--   reservation_passenger, youth_travel_arrangement,
+--   dining_option, ship_dining_option, extra_service,
+--   reservation_service, excursion, voyage_excursion,
+--   excursion_booking, cancellation, reschedule, payment
+-- NOTE: cruise_operator owns ship (ship.operator_id FK);
+--       cabin has self-ref adjacent_cabin_id (nullable);
+--       voyage.meal_package is a computed column from duration.
+-- ============================================================
+
+-- TODO: team to author DDL here.

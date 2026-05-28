@@ -1,0 +1,18 @@
+-- ============================================================
+-- 02_constraints.sql
+-- Shared CHECK constraints and cross-table integrity rules.
+-- SHARED FILE: coordinate with the team before editing.
+-- Apply order: 2nd. Runs after tables exist.
+-- Engine: MS SQL Server (T-SQL).
+-- ------------------------------------------------------------
+-- Examples of what belongs here (per assignment brief):
+--   - cabin.max_occupancy <= 5
+--   - reservation party size <= 5
+--   - non-negative fare/payment amounts
+--   - any shared cross-table CHECK rules that don't belong to
+--     a single member's owned objects
+-- Per-member constraints (the graded "one constraint each") go
+-- in 03a/03b/03c, NOT here.
+-- ============================================================
+
+-- TODO: team to author shared constraints here.
