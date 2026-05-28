@@ -12,5 +12,14 @@ services:
     volumes:
       - glcl_data:/var/opt/mssql
 
+  adminer:
+    image: adminer
+    container_name: glcl-adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
 volumes:
   glcl_data:
