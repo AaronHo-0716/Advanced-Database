@@ -118,7 +118,11 @@ INSERT INTO [VOYAGE] ([voyage_id], [ship_id], [departure_port_id], [arrival_port
 (2, 2, 1, 4, '2025-07-10 16:00:00', '2025-07-15 09:00:00', 'One-way', 'Active'),
 (3, 3, 5, 5, '2025-08-01 18:00:00', '2025-08-14 06:00:00', 'Multi-destination', 'Active'),
 (4, 7, 7, 7, '2025-09-01 19:00:00', '2025-09-07 08:00:00', 'Round-trip', 'Active'),
-(5, 9, 9, 9, '2025-10-05 17:00:00', '2025-10-15 07:00:00', 'Round-trip', 'Active');
+(5, 9, 9, 9, '2025-10-05 17:00:00', '2025-10-15 07:00:00', 'Round-trip', 'Active'),
+(6, 3, 1, 4, '2025-12-01 10:00:00', '2025-12-05 10:00:00', 'One-way', 'Active'), -- 96 hours
+(7, 4, 1, 4, '2025-12-10 10:00:00', '2025-12-12 10:00:00', 'One-way', 'Active'), -- 48 hours (Should show first)
+(8, 2, 1, 1, '2025-06-01 20:00:00', '2025-06-10 07:00:00', 'Round-trip', 'Active'),
+(9, 1, 1, 1, '2030-01-01 10:00:00', '2030-01-10 20:00:00', 'Round-trip', 'Active');
 SET IDENTITY_INSERT [VOYAGE] OFF;
 
 -- 11. ITINERARY_STOP
@@ -137,7 +141,9 @@ INSERT INTO [VOYAGE_CABIN_FARE] ([fare_id], [voyage_id], [category_id], [adult_f
 (2, 1, 2, 1200.00, 600.00, 1000.00),
 (3, 1, 3, 1800.00, 900.00, 1500.00),
 (4, 1, 4, 3500.00, 1750.00, 3000.00),
-(5, 2, 1, 500.00, 250.00, 450.00);
+(5, 2, 1, 500.00, 250.00, 450.00),
+(6, 1, 3, 1000.00, 600.00, 900.00),
+(7, 2, 4, 4200.00, 2100.00, 3800.00);
 SET IDENTITY_INSERT [VOYAGE_CABIN_FARE] OFF;
 
 -- 13. PASSENGER (Large block of varied ages)
@@ -172,7 +178,8 @@ INSERT INTO [RESERVATION_PASSENGER] ([reservation_passenger_id], [reservation_id
 (3, 1, 3, 1, 0, 'Crib/Cot', 200.00, 0),  -- Baby (Calculated fare)
 (4, 1, 4, 5, 0, 'Normal', 1500.00, 1),  -- Ah Gong (Senior + Wheelchair)
 (5, 2, 9, 4, 1, 'Normal', 800.00, 0),
-(6, 2, 10, 5, 0, 'Normal', 700.00, 0);
+(6, 1, 3, 1, 0, 'Crib/Cot', 200.00, 0),
+(7, 2, 10, 5, 0, 'Normal', 700.00, 0);
 SET IDENTITY_INSERT [RESERVATION_PASSENGER] OFF;
 
 -- 16. YOUTH_TRAVEL_ARRANGEMENT
@@ -233,6 +240,7 @@ SET IDENTITY_INSERT [RESCHEDULE] OFF;
 INSERT INTO [SHIP_DINING_OPTION] ([ship_id], [dining_option_id]) VALUES
 (1, 1), (1, 2), (1, 3), (1, 6),
 (2, 1), (2, 2), (2, 4),
-(3, 1), (3, 5);
+(3, 1), (3, 5),
+(1, 4), (1, 5), (2, 3);
 
 PRINT 'Database Seeding Completed Successfully with thousands of relationships established.';
