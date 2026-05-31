@@ -167,7 +167,8 @@ INSERT INTO [RESERVATION] ([reservation_id], [voyage_id], [cabin_id], [status_id
 (1, 1, 4, 1, '2025-01-10', 4500.00), -- Family in Balcony
 (2, 1, 1, 1, '2025-01-12', 1600.00), -- Couple in Interior
 (3, 1, 5, 2, '2025-02-01', 5000.00), -- Suite booking
-(4, 2, 6, 1, '2025-03-01', 500.00);  -- Single traveler
+(4, 2, 6, 1, '2025-03-01', 500.00),  -- Single traveler
+(5, 3, 10, 1,'2025-07-01',1200.00); -- Booking for ship 3
 SET IDENTITY_INSERT [RESERVATION] OFF;
 
 -- 15. RESERVATION_PASSENGER (Connecting passengers to rooms)
@@ -179,7 +180,8 @@ INSERT INTO [RESERVATION_PASSENGER] ([reservation_passenger_id], [reservation_id
 (4, 1, 4, 5, 0, 'Normal', 1500.00, 1),  -- Ah Gong (Senior + Wheelchair)
 (5, 2, 9, 4, 1, 'Normal', 800.00, 0),
 (6, 1, 3, 1, 0, 'Crib/Cot', 200.00, 0),
-(7, 2, 10, 5, 0, 'Normal', 700.00, 0);
+(7, 2, 10, 5, 0, 'Normal', 700.00, 0),
+(8, 5, 7, 4, 1, 'Normal', 1200.00, 0);
 SET IDENTITY_INSERT [RESERVATION_PASSENGER] OFF;
 
 -- 16. YOUTH_TRAVEL_ARRANGEMENT
@@ -192,7 +194,8 @@ SET IDENTITY_INSERT [YOUTH_TRAVEL_ARRANGEMENT] OFF;
 SET IDENTITY_INSERT [RESERVATION_SERVICE] ON;
 INSERT INTO [RESERVATION_SERVICE] ([reservation_service_id], [reservation_id], [passenger_id], [service_id], [service_date], [amount]) VALUES
 (1, 1, 3, 5, '2025-06-01', 0.00),  -- Crib for Baby
-(2, 1, 4, 3, '2025-06-01', 0.00);  -- Wheelchair for Ah Gong
+(2, 1, 4, 3, '2025-06-01', 0.00), -- Wheelchair for Ah Gong
+(3, 1, 6, 4, '2025-06-01', 100.00);  
 SET IDENTITY_INSERT [RESERVATION_SERVICE] OFF;
 
 -- 18. EXCURSION
