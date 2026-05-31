@@ -46,8 +46,14 @@ Write-Host " using $Sqlcmd"
 
 Write-Host ">> waiting for SQL Server to accept connections"
 while ($true) {
-    docker exec glcl-mssql $Sqlcmd -S localhost -U sa -P $SaPass -C -Q "SELECT 1" *> $null
-    if ($LASTEXITCODE -eq 0) { break }
+    try {
+        docker exec glcl-mssql $Sqlcmd -S localhost -U sa -P $SaPass -C -Q "SELECT 1" *> $null
+        if ($LASTEXITCODE -eq 0) { break }
+    }
+    catch {
+        # SQL Server not ready yet, keep waiting
+    }
+
     Write-Host -NoNewline "."
     Start-Sleep -Seconds 2
 }

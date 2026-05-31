@@ -290,3 +290,13 @@ CREATE TABLE [PAYMENT] (
     CONSTRAINT [FK_PAY_RES] FOREIGN KEY ([reservation_id]) REFERENCES [RESERVATION]([reservation_id])
 );
 GO
+
+-- Create Indexes for performance optimization
+CREATE INDEX IDX_RES_PASS
+ON [RESERVATION_PASSENGER](passenger_id, reservation_id);
+
+CREATE INDEX IDX_RES_SERVICE
+ON [RESERVATION_SERVICE](service_id, passenger_id);
+
+CREATE INDEX IDX_EXCUR_BOOK
+ON [EXCURSION_BOOKING](voyage_excursion_id, passenger_id);
