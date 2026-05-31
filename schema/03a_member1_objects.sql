@@ -129,27 +129,24 @@ GO
 
 -- ------------------------------------------------------------
 -- 4. OPTIMISATION STRATEGY  (Requirement 1b)
--- Strategy: index the foreign-key lookup columns that my
--- cancellation workload filters and joins on. SQL Server does
--- NOT auto-create indexes on foreign keys: the only index on
--- CANCELLATION / RESERVATION is the clustered PK on the identity
--- column, so any lookup by reservation_id / voyage_id is a full
--- clustered-index scan of the whole table.
+-- Strategy: a covering composite index on VOYAGE to accelerate
+-- the sailing-search workload. My query (i) searches VOYAGE by
+-- departure port, arrival port and itinerary type over a date
+-- range, but the only index on VOYAGE is the clustered PK on the
+-- identity column voyage_id -- so a port/itinerary search has to
+-- scan every voyage row.
 --
--- Justification by access pattern:
---   * usp_CancelReservation probes CANCELLATION by reservation_id
---     (the EXISTS "already cancelled?" check) on every call.
---   * The trigger joins [inserted] back to RESERVATION.
---   * My business query (vii) joins CANCELLATION -> RESERVATION on
---     reservation_id and RESERVATION -> VOYAGE on voyage_id.
--- A non-clustered index on each of these columns turns those
--- scans into seeks. Before/after measurements are in
+-- The index leads on the equality-search columns
+-- (departure_port_id, arrival_port_id, itinerary_type) so the
+-- engine can SEEK straight to the matching sailings, and INCLUDEs
+-- the remaining columns the query returns so it is COVERING --
+-- the whole query (i) is answered from the index alone, with no
+-- key lookups back to the clustered table.
+--
+-- Before/after measurements are in
 -- docs/reflections/member1_reflection.md (section 6).
 -- ------------------------------------------------------------
-CREATE NONCLUSTERED INDEX [IX_CANCELLATION_reservation_id]
-    ON [CANCELLATION] ([reservation_id]);
-GO
-
-CREATE NONCLUSTERED INDEX [IX_RESERVATION_voyage_id]
-    ON [RESERVATION] ([voyage_id]);
+CREATE NONCLUSTERED INDEX [IX_VOYAGE_PortSearch]
+    ON [VOYAGE] ([departure_port_id], [arrival_port_id], [itinerary_type])
+    INCLUDE ([departure_datetime], [arrival_datetime], [voyage_status], [ship_id]);
 GO
