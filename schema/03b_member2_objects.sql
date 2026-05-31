@@ -3,16 +3,15 @@
 -- OWNER: Member 2
 -- Engine: MS SQL Server (T-SQL).
 -- ------------------------------------------------------------
--- This file implements advanced business logic including:
--- 1. Date Validation Constraints
--- 2. Automated Infant Pricing Trigger
--- 3. Safety/Supervision Trigger (Teen Travel Rule)
--- 4. 48-Hour Forfeit Procedure
--- 5. 1-Year Rescheduling Procedure
+-- Contents required by the assignment:
+--   1. CHECK constraints (Data Integrity)
+--   2. Triggers (Business Rule Automation)
+--   3. Stored Procedures (Operational Logic)
+--   4. Optimization Strategy (Requirement 1b - Indexing)
 -- ============================================================
 
 -- ------------------------------------------------------------
--- 1. CONSTRAINTS (Enhanced Logic)
+-- 1. CONSTRAINTS (Requirement 1c)
 -- ------------------------------------------------------------
 
 -- Business Rule: Booking date cannot be in the future.
@@ -21,7 +20,6 @@ ADD CONSTRAINT [CHK_BOOKING_DATE_VALID]
 CHECK ([booking_date] <= GETDATE());
 GO
 
--- Business Rule: Reschedule request date cannot be before the original booking date.
 -- Business Rule: A reschedule request cannot be logged for a future date/time.
 ALTER TABLE [RESCHEDULE]
 ADD CONSTRAINT [CHK_RESCHEDULE_NOT_FUTURE] 
@@ -30,7 +28,7 @@ GO
 
 
 -- ------------------------------------------------------------
--- 2. TRIGGERS (Automated Business Rules)
+-- 2. TRIGGERS (Requirement 1c / 2b)
 -- ------------------------------------------------------------
 
 -- Business Rule: "Infant sharing bedding = 15% of adult fare; 
@@ -41,7 +39,6 @@ AFTER INSERT, UPDATE
 AS
 BEGIN
     SET NOCOUNT ON;
-    -- Only run logic for infants (Age Category ID 1)
     UPDATE RP
     SET [fare_amount] = CASE 
         WHEN i.[bedding_type] = 'Existing Bedding' THEN (VCF.[adult_fare] * 0.15)
@@ -58,7 +55,6 @@ END;
 GO
 
 -- Safety Rule: "A teen (up to 17) cannot travel in a cabin alone unless an adult is booked."
--- This trigger checks if a reservation has at least one Adult (Category 4) or Senior (Category 5).
 CREATE OR ALTER TRIGGER [trg_ValidateAdultPresence]
 ON [RESERVATION_PASSENGER]
 AFTER INSERT
@@ -75,17 +71,17 @@ BEGIN
         )
     )
     BEGIN
-        PRINT 'WARNING: Every cabin must have at least one Adult (18+) or Senior (60+). Please ensure a guardian is added or Chaperoned Youth program is selected.';
+        PRINT 'WARNING: Every cabin must have at least one Adult (18+) or Senior (60+).';
     END
 END;
 GO
 
 
 -- ------------------------------------------------------------
--- 3. STORED PROCEDURES (Operational Features)
+-- 3. STORED PROCEDURES (Requirement 2c)
 -- ------------------------------------------------------------
 
--- Business Rule: "If traveler cancels < 48 hours before departure, they forfeit entire ticket value."
+-- Business Rule: 48-hour cancellation forfeit rule.
 CREATE OR ALTER PROCEDURE [usp_ProcessCancellation]
     @ResID INT,
     @Reason VARCHAR(255)
@@ -97,14 +93,13 @@ BEGIN
     FROM [RESERVATION] R JOIN [VOYAGE] V ON R.[voyage_id] = V.[voyage_id]
     WHERE R.[reservation_id] = @ResID;
 
-    -- If < 48 hours from departure
     IF DATEDIFF(HOUR, GETDATE(), @DepTime) < 48
     BEGIN
         SET @Refund = 0; SET @Fee = @Total;
     END
     ELSE
     BEGIN
-        SET @Fee = 150.00; -- Standard flat fee
+        SET @Fee = 150.00;
         SET @Refund = @Total - @Fee;
     END
 
@@ -115,8 +110,7 @@ BEGIN
 END;
 GO
 
--- Business Rule: "If a sailing is transferred to a new date, the new voyage 
---                 must begin within one year of the original booking date."
+-- Business Rule: 1-year rescheduling transfer limit.
 CREATE OR ALTER PROCEDURE [usp_RescheduleVoyage]
     @ResID INT,
     @NewVoyageID INT
@@ -127,10 +121,9 @@ BEGIN
     SELECT @BookingDate = [booking_date] FROM [RESERVATION] WHERE [reservation_id] = @ResID;
     SELECT @NewDepDate = [departure_datetime] FROM [VOYAGE] WHERE [voyage_id] = @NewVoyageID;
 
-    -- Check if New Departure is within 1 year of Booking
     IF @NewDepDate > DATEADD(YEAR, 1, @BookingDate)
     BEGIN
-        RAISERROR('Rescheduling Failed: New voyage must start within 1 year of the original booking date.', 16, 1);
+        RAISERROR('Rescheduling Failed: New voyage must start within 1 year.', 16, 1);
         RETURN;
     END
 
@@ -140,4 +133,32 @@ BEGIN
 
     UPDATE [RESERVATION] SET [voyage_id] = @NewVoyageID, [status_id] = 4 WHERE [reservation_id] = @ResID;
 END;
+GO
+
+
+-- ------------------------------------------------------------
+-- 4. OPTIMIZATION STRATEGY (Requirement 1b)
+-- ------------------------------------------------------------
+-- Strategy: Implementation of Non-Clustered Indexes on high-traffic 
+-- Foreign Key and Temporal columns to prevent Full Table Scans.
+-- ------------------------------------------------------------
+
+-- Index on VOYAGE(departure_datetime) for faster voyage searches/filtering
+CREATE NONCLUSTERED INDEX [IX_VOYAGE_Departure] 
+ON [VOYAGE] ([departure_datetime]);
+GO
+
+-- Index on RESERVATION(voyage_id) for faster joins during manifest generation
+CREATE NONCLUSTERED INDEX [IX_RES_VoyageID] 
+ON [RESERVATION] ([voyage_id]);
+GO
+
+-- Index on RESERVATION_PASSENGER(reservation_id) for optimized billing/grouping
+CREATE NONCLUSTERED INDEX [IX_RP_ResID] 
+ON [RESERVATION_PASSENGER] ([reservation_id]);
+GO
+
+-- Index on PAYMENT(reservation_id) to accelerate financial reconciliation reports
+CREATE NONCLUSTERED INDEX [IX_PAY_ResID] 
+ON [PAYMENT] ([reservation_id]);
 GO
