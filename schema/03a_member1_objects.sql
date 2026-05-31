@@ -9,7 +9,8 @@
 --   1. One CHECK constraint (or table-level constraint)
 --   2. One trigger
 --   3. One stored procedure or user-defined function
--- Keep all three in this file so ownership stays conflict-free.
+--   4. One optimisation strategy (Requirement 1b)
+-- Keep all four in this file so ownership stays conflict-free.
 --
 -- Theme: Cancellations (Member 1's graded scope). The three
 -- objects work together --- the procedure books a cancellation,
@@ -123,4 +124,32 @@ BEGIN
         THROW;  -- re-raise to the caller
     END CATCH
 END;
+GO
+
+
+-- ------------------------------------------------------------
+-- 4. OPTIMISATION STRATEGY  (Requirement 1b)
+-- Strategy: index the foreign-key lookup columns that my
+-- cancellation workload filters and joins on. SQL Server does
+-- NOT auto-create indexes on foreign keys: the only index on
+-- CANCELLATION / RESERVATION is the clustered PK on the identity
+-- column, so any lookup by reservation_id / voyage_id is a full
+-- clustered-index scan of the whole table.
+--
+-- Justification by access pattern:
+--   * usp_CancelReservation probes CANCELLATION by reservation_id
+--     (the EXISTS "already cancelled?" check) on every call.
+--   * The trigger joins [inserted] back to RESERVATION.
+--   * My business query (vii) joins CANCELLATION -> RESERVATION on
+--     reservation_id and RESERVATION -> VOYAGE on voyage_id.
+-- A non-clustered index on each of these columns turns those
+-- scans into seeks. Before/after measurements are in
+-- docs/reflections/member1_reflection.md (section 6).
+-- ------------------------------------------------------------
+CREATE NONCLUSTERED INDEX [IX_CANCELLATION_reservation_id]
+    ON [CANCELLATION] ([reservation_id]);
+GO
+
+CREATE NONCLUSTERED INDEX [IX_RESERVATION_voyage_id]
+    ON [RESERVATION] ([voyage_id]);
 GO
