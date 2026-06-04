@@ -11,7 +11,7 @@
 
 -- xv. Minimum, maximum, and average voyage duration in days
 -- for sailings to a given destination port code.
-DECLARE @DestinationPortCode VARCHAR(10) = 'PEN';
+DECLARE @DestinationPortCode VARCHAR(10) = 'SIN';
 
 SELECT
     MIN(DATEDIFF(MINUTE, v.departure_datetime, v.arrival_datetime) / 1440.0) AS [Minimum Duration],

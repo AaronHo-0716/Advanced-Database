@@ -181,13 +181,15 @@ INSERT INTO [RESERVATION_PASSENGER] ([reservation_passenger_id], [reservation_id
 (5, 2, 9, 4, 1, 'Normal', 800.00, 0),
 (6, 1, 3, 1, 0, 'Crib/Cot', 200.00, 0),
 (7, 2, 10, 5, 0, 'Normal', 700.00, 0),
-(8, 5, 7, 4, 1, 'Normal', 1200.00, 0);
+(8, 5, 7, 4, 1, 'Normal', 1200.00, 0),
+(9, 1, 6, 3, 0, 'Normal', 900.00, 0);
 SET IDENTITY_INSERT [RESERVATION_PASSENGER] OFF;
 
 -- 16. YOUTH_TRAVEL_ARRANGEMENT
 SET IDENTITY_INSERT [YOUTH_TRAVEL_ARRANGEMENT] ON;
 INSERT INTO [YOUTH_TRAVEL_ARRANGEMENT] ([arrangement_id], [reservation_passenger_id], [arrangement_type], [guardian_reservation_passenger_id], [supervision_fee]) VALUES
-(1, 3, 'Adult Guardian', 1, 0.00); -- Baby monitored by John
+(1, 3, 'Adult Guardian', 1, 0.00), -- Baby monitored by John
+(2, 9, 'Chaperoned Youth Program', NULL, 700.00); -- Teenager Tom
 SET IDENTITY_INSERT [YOUTH_TRAVEL_ARRANGEMENT] OFF;
 
 -- 17. RESERVATION_SERVICE
