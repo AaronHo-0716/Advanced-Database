@@ -126,6 +126,41 @@ BEGIN
 END;
 GO
 
+-- ------------------------------------------------------------
+-- USAGE EXAMPLES for usp_CancelReservation
+-- These are commented out so this schema file still applies
+-- cleanly on reset. To demo, copy ONE EXEC line (without the
+-- leading '--') into Adminer and run it on its own.
+-- Reservation ids below assume the seeded data:
+--   already cancelled (in seed): 4, 6, 8, 10, 12, 13
+--   free to cancel for a demo  : 1, 2, 3, 5, 7, 9, 11, 14, 15
+-- ------------------------------------------------------------
+-- 1) Successful cancellation, full refund (fee defaults to 0):
+--    res 3 total = 5000.00  ->  refund 5000.00, status flips to 'Cancelled'
+-- EXEC usp_CancelReservation @reservation_id = 3;
+
+-- 2) Successful cancellation WITH a fee and a reason:
+--    res 2 total = 1600.00, fee 100.00  ->  refund 1500.00
+-- EXEC usp_CancelReservation @reservation_id = 2, @cancellation_fee = 100.00, @reason = 'Customer request';
+
+-- 3) Guard: reservation does not exist  ->  THROW 50001
+-- EXEC usp_CancelReservation @reservation_id = 9999;
+
+-- 4) Guard: already cancelled (res 4 is cancelled in the seed)  ->  THROW 50002
+-- EXEC usp_CancelReservation @reservation_id = 4;
+
+-- 5) Guard: fee exceeds the reservation total  ->  THROW 50003
+--    res 5 total = 1200.00, fee 99999.00 is too high
+-- EXEC usp_CancelReservation @reservation_id = 5, @cancellation_fee = 99999.00;
+
+-- Verify a cancellation afterwards (paste separately):
+-- SELECT r.reservation_id, r.total_amount, rs.status_name,
+--        c.cancellation_fee, c.refund_amount, c.reason
+-- FROM RESERVATION r
+-- JOIN RESERVATION_STATUS rs ON rs.status_id = r.status_id
+-- LEFT JOIN CANCELLATION c   ON c.reservation_id = r.reservation_id
+-- WHERE r.reservation_id = 3;
+
 
 -- ------------------------------------------------------------
 -- 4. OPTIMISATION STRATEGY  (Requirement 1b)
