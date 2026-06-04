@@ -107,7 +107,13 @@ INSERT INTO [CABIN] ([cabin_id], [ship_id], [category_id], [cabin_no], [max_occu
 (6, 2, 1, '101', 2, 0, NULL), (7, 2, 2, '201', 3, 0, NULL), (8, 2, 3, '301', 4, 0, NULL), (9, 2, 4, '401', 5, 0, NULL),
 (10, 3, 1, '101', 2, 0, NULL), (11, 3, 4, 'S1', 5, 1, NULL),
 (12, 1, 1, '103', 2, 0, 1), -- Adjacent to 101
-(13, 1, 1, '104', 2, 0, 2); -- Adjacent to 102
+(13, 1, 1, '104', 2, 0, 2), -- Adjacent to 102
+-- Cabins for the other ships so Query (vii) reservations are realistic
+(14, 4, 1, 'C101', 2, 0, NULL), (15, 4, 3, 'C301', 4, 0, NULL),   -- Carnival Mardi Gras
+(16, 5, 1, 'N101', 2, 0, NULL), (17, 5, 4, 'N401', 5, 0, NULL),   -- Norwegian Epic
+(18, 6, 2, 'B201', 3, 0, NULL),                                   -- Norwegian Bliss
+(19, 7, 1, 'M101', 2, 0, NULL), (20, 7, 3, 'M301', 4, 0, NULL),   -- MSC Virtuosa
+(21, 9, 1, 'P101', 2, 0, NULL), (22, 9, 2, 'P201', 3, 0, NULL);   -- Diamond Princess
 -- (In real use, you'd insert hundreds more here)
 SET IDENTITY_INSERT [CABIN] OFF;
 
@@ -122,7 +128,13 @@ INSERT INTO [VOYAGE] ([voyage_id], [ship_id], [departure_port_id], [arrival_port
 (6, 3, 1, 4, '2025-12-01 10:00:00', '2025-12-05 10:00:00', 'One-way', 'Active'), -- 96 hours
 (7, 4, 1, 4, '2025-12-10 10:00:00', '2025-12-12 10:00:00', 'One-way', 'Active'), -- 48 hours (Should show first)
 (8, 2, 1, 1, '2025-06-01 20:00:00', '2025-06-10 07:00:00', 'Round-trip', 'Active'),
-(9, 1, 1, 1, '2030-01-01 10:00:00', '2030-01-10 20:00:00', 'Round-trip', 'Active');
+(9, 1, 1, 1, '2030-01-01 10:00:00', '2030-01-10 20:00:00', 'Round-trip', 'Active'),
+(10, 1,  1,  4, '2026-01-05 17:00:00', '2026-01-18 09:00:00', 'Multi-destination', 'Active'),
+(11, 1,  7, 11, '2026-02-10 18:00:00', '2026-02-22 08:00:00', 'Multi-destination', 'Active'),
+(12, 2, 10,  1, '2026-03-01 16:00:00', '2026-03-14 07:00:00', 'Multi-destination', 'Active'),
+(13, 5,  5, 12, '2026-04-01 17:00:00', '2026-04-12 07:00:00', 'Multi-destination', 'Active'),
+(14, 6,  8,  9, '2026-05-01 18:00:00', '2026-05-15 08:00:00', 'Multi-destination', 'Active'),
+(15, 7,  7, 11, '2026-06-01 19:00:00', '2026-06-10 08:00:00', 'Multi-destination', 'Active');
 SET IDENTITY_INSERT [VOYAGE] OFF;
 
 -- 11. ITINERARY_STOP
@@ -131,7 +143,13 @@ INSERT INTO [ITINERARY_STOP] ([stop_id], [voyage_id], [port_id], [stop_order], [
 (1, 1, 2, 1, '2025-06-02 08:00:00', '2025-06-02 20:00:00'),
 (2, 1, 3, 2, '2025-06-03 07:00:00', '2025-06-03 18:00:00'),
 (3, 3, 12, 1, '2025-08-03 08:00:00', '2025-08-03 22:00:00'),
-(4, 3, 13, 2, '2025-08-05 06:00:00', '2025-08-05 17:00:00');
+(4, 3, 13, 2, '2025-08-05 06:00:00', '2025-08-05 17:00:00'),
+-- Intermediate stops for the new Query (vi) multi-destination voyages
+(5, 10,  3, 1, '2026-01-08 08:00:00', '2026-01-08 20:00:00'),  -- voyage 10: Penang
+(6, 10, 15, 2, '2026-01-12 07:00:00', '2026-01-12 18:00:00'),  -- voyage 10: Ho Chi Minh
+(7, 12, 14, 1, '2026-03-05 08:00:00', '2026-03-05 19:00:00'),  -- voyage 12: Phuket
+(8, 12,  3, 2, '2026-03-09 07:00:00', '2026-03-09 18:00:00'),  -- voyage 12: Penang
+(9, 13, 13, 1, '2026-04-05 08:00:00', '2026-04-05 20:00:00');  -- voyage 13: Cozumel
 SET IDENTITY_INSERT [ITINERARY_STOP] OFF;
 
 -- 12. VOYAGE_CABIN_FARE
@@ -168,7 +186,18 @@ INSERT INTO [RESERVATION] ([reservation_id], [voyage_id], [cabin_id], [status_id
 (2, 1, 1, 1, '2025-01-12', 1600.00), -- Couple in Interior
 (3, 1, 5, 2, '2025-02-01', 5000.00), -- Suite booking
 (4, 2, 6, 1, '2025-03-01', 500.00),  -- Single traveler
-(5, 3, 10, 1,'2025-07-01',1200.00); -- Booking for ship 3
+(5, 3, 10, 1,'2025-07-01',1200.00), -- Booking for ship 3
+-- --- Added for Query (vii): reservations spread across all five operators ---
+(6, 11,  2, 1, '2025-11-01', 3200.00), -- Royal Caribbean (voyage 11)  -> cancelled
+(7,  3, 11, 1, '2025-05-20', 1500.00), -- Carnival        (voyage 3)
+(8,  7, 14, 1, '2025-09-15', 2200.00), -- Carnival        (voyage 7)    -> cancelled
+(9, 13, 16, 1, '2026-02-01', 1800.00), -- Norwegian       (voyage 13)
+(10,13, 17, 1, '2026-02-05', 4100.00), -- Norwegian       (voyage 13)   -> cancelled
+(11,14, 18, 1, '2026-03-10', 2600.00), -- Norwegian       (voyage 14)
+(12, 4, 19, 1, '2025-07-01', 2900.00), -- MSC             (voyage 4)    -> cancelled
+(13,15, 20, 1, '2026-04-01', 3300.00), -- MSC             (voyage 15)   -> cancelled
+(14, 5, 21, 1, '2025-08-01', 1700.00), -- Princess        (voyage 5)
+(15, 5, 22, 1, '2025-08-02', 2400.00); -- Princess        (voyage 5)
 SET IDENTITY_INSERT [RESERVATION] OFF;
 
 -- 15. RESERVATION_PASSENGER (Connecting passengers to rooms)
@@ -197,7 +226,7 @@ SET IDENTITY_INSERT [RESERVATION_SERVICE] ON;
 INSERT INTO [RESERVATION_SERVICE] ([reservation_service_id], [reservation_id], [passenger_id], [service_id], [service_date], [amount]) VALUES
 (1, 1, 3, 5, '2025-06-01', 0.00),  -- Crib for Baby
 (2, 1, 4, 3, '2025-06-01', 0.00), -- Wheelchair for Ah Gong
-(3, 1, 6, 4, '2025-06-01', 100.00);  
+(3, 1, 6, 4, '2025-06-01', 100.00);
 SET IDENTITY_INSERT [RESERVATION_SERVICE] OFF;
 
 -- 18. EXCURSION
@@ -232,7 +261,13 @@ SET IDENTITY_INSERT [PAYMENT] OFF;
 -- 22. CANCELLATION (Example of a cancelled booking)
 SET IDENTITY_INSERT [CANCELLATION] ON;
 INSERT INTO [CANCELLATION] ([cancellation_id], [reservation_id], [cancellation_datetime], [cancellation_fee], [refund_amount], [reason]) VALUES
-(1, 4, '2025-04-01 10:00:00', 50.00, 450.00, 'Medical emergency');
+(1, 4, '2025-04-01 10:00:00', 50.00, 450.00, 'Medical emergency'),
+-- --- Added for Query (vii): cancellations giving each operator a distinct rate ---
+(2,  6, '2025-11-20 09:00:00', 300.00, 2900.00, 'Change of plans'),    -- RCI       (res 6)
+(3,  8, '2025-10-01 11:00:00', 200.00, 2000.00, 'Schedule conflict'),  -- Carnival  (res 8)
+(4, 10, '2026-02-15 14:00:00', 410.00, 3690.00, 'Medical emergency'),  -- Norwegian (res 10)
+(5, 12, '2025-06-15 16:00:00', 290.00, 2610.00, 'Visa issue'),         -- MSC       (res 12)
+(6, 13, '2026-03-10 10:00:00', 330.00, 2970.00, 'Family emergency');   -- MSC       (res 13)
 SET IDENTITY_INSERT [CANCELLATION] OFF;
 
 -- 23. RESCHEDULE (Example of a change)
