@@ -11,7 +11,7 @@
 
 -- xv. Minimum, maximum, and average voyage duration in days
 -- for sailings to a given destination port code.
-DECLARE @DestinationPortCode VARCHAR(10) = 'SIN';
+-- DECLARE @DestinationPortCode VARCHAR(10) = 'SIN';
 
 SELECT
     MIN(DATEDIFF(MINUTE, v.departure_datetime, v.arrival_datetime) / 1440.0) AS [Minimum Duration],
@@ -20,12 +20,12 @@ SELECT
 FROM [VOYAGE] v
 INNER JOIN [PORT] p
     ON v.arrival_port_id = p.port_id
-WHERE p.port_code = @DestinationPortCode;
+WHERE p.port_code = 'SIN';
 GO
 
 -- xvi. Departure date, number of booked passengers in the party,
 -- and cabin category name for a specified passenger ID.
-DECLARE @PassengerID INT = 1;
+-- DECLARE @PassengerID INT = 1;
 
 SELECT
     CAST(v.departure_datetime AS DATE) AS departure_date,
@@ -42,7 +42,7 @@ INNER JOIN [CABIN_CATEGORY] cc
     ON c.category_id = cc.category_id
 INNER JOIN [RESERVATION_PASSENGER] rp_all
     ON r.reservation_id = rp_all.reservation_id
-WHERE rp_target.passenger_id = @PassengerID
+WHERE rp_target.passenger_id = 1
 GROUP BY
     v.departure_datetime,
     cc.category_name,
@@ -69,8 +69,8 @@ GO
 -- given departure date for multi-destination itineraries.
 -- Note: the original seed data has a multi-destination voyage but no
 -- reservation for it, so this may return no rows unless test data is added.
-DECLARE @OperatorName VARCHAR(100) = 'Carnival Cruise Line';
-DECLARE @GivenDate DATE = '2025-08-01';
+-- DECLARE @OperatorName VARCHAR(100) = 'Carnival Cruise Line';
+-- DECLARE @GivenDate DATE = '2025-08-01';
 
 SELECT
     co.operator_name,
@@ -97,8 +97,8 @@ INNER JOIN [PASSENGER] p
     ON rp.passenger_id = p.passenger_id
 INNER JOIN [CABIN] c
     ON r.cabin_id = c.cabin_id
-WHERE co.operator_name = @OperatorName
-  AND CAST(v.departure_datetime AS DATE) = @GivenDate
+WHERE co.operator_name = 'Carnival Cruise Line'
+  AND CAST(v.departure_datetime AS DATE) = '2025-08-01'
   AND v.itinerary_type = 'Multi-destination'
 ORDER BY
     v.voyage_id,
@@ -109,7 +109,7 @@ GO
 -- xix. Wheelchair assistance passenger counts by cruise operator
 -- on a given travel date, with ship-level detail, operator summaries,
 -- and an overall summary using ROLLUP.
-DECLARE @TravelDate DATE = '2025-06-01';
+-- DECLARE @TravelDate DATE = '2025-06-01';
 
 SELECT
     CASE
@@ -132,7 +132,7 @@ INNER JOIN [RESERVATION] r
 INNER JOIN [RESERVATION_PASSENGER] rp
     ON r.reservation_id = rp.reservation_id
 WHERE rp.requires_wheelchair_assistance = 1
-  AND @TravelDate BETWEEN CAST(v.departure_datetime AS DATE)
+  AND '2025-06-01' BETWEEN CAST(v.departure_datetime AS DATE)
                       AND CAST(v.arrival_datetime AS DATE)
 GROUP BY ROLLUP(co.operator_name, s.ship_name)
 ORDER BY
@@ -146,8 +146,8 @@ GO
 -- extra service for a given sailing on a specified date.
 -- This version follows Member 3's final design where the program is
 -- recorded in YOUTH_TRAVEL_ARRANGEMENT.
-DECLARE @VoyageID INT = 1;
-DECLARE @DepartureDate DATE = '2025-06-01';
+-- DECLARE @VoyageID INT = 1;
+-- DECLARE @DepartureDate DATE = '2025-06-01';
 
 SELECT
     v.voyage_id,
@@ -168,8 +168,8 @@ INNER JOIN [RESERVATION] r
 INNER JOIN [VOYAGE] v
     ON r.voyage_id = v.voyage_id
 WHERE yta.arrangement_type = 'Chaperoned Youth Program'
-  AND v.voyage_id = @VoyageID
-  AND CAST(v.departure_datetime AS DATE) = @DepartureDate;
+  AND v.voyage_id = 1
+  AND CAST(v.departure_datetime AS DATE) = '2025-06-01';
 GO
 
 -- xxi. Additional business query: revenue by cabin category for each voyage.
